@@ -13,19 +13,10 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		int weight;
 		T arrivalNode;
 		public GraphEdge(int weight, T node){
-			if(weight<0) {
-				throw new IllegalArgumentException("Weight must not be below 0");
-			}
 			this.weight = weight;
 			arrivalNode = node;
 		}
-		public boolean equals(GraphEdge<T> other) {
-			if(this.equals(other.arrivalNode)) {
-				return true;
-			}
-			return false;
-			
-		}
+
 	}
 
 	@Override
@@ -54,34 +45,36 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			
 			
 	}
+	private GraphEdge<T> getExistingEdge(T from, T to){
+		List<GraphEdge<T>> fromEdges = nodes.get(from);
+		for(GraphEdge<T> e : fromEdges) {
+			if(e.arrivalNode.equals(to)) {
+				return e;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public boolean connect(T node1, T node2, int cost) {
-		if(!nodes.containsKey(node1) || !nodes.containsKey(node2))
+		if(cost<=0 || !nodes.containsKey(node1) || !nodes.containsKey(node2))
 			return false;
-		List<GraphEdge<T>> fromEdges = nodes.get(node1);
-		List<GraphEdge<T>> toEdges = nodes.get(node2);
 		
 		GraphEdge<T> from = new GraphEdge<T>(cost, node2);
 		GraphEdge<T> to = new GraphEdge<T>(cost, node1);
 		
-		int index = fromEdges.indexOf(from);
-		
-		if(index>0) {
-			GraphEdge<T> existingEdge = fromEdges.get(index);
-			if(from.weight != existingEdge.weight) {
-				
-				int indexTo = toEdges.indexOf(to);
-				toEdges.get(indexTo).weight = cost;
-				existingEdge.weight = cost;
-				return true;
-			}
-			return false;
+		GraphEdge<T> existingEdge = getExistingEdge(node1, node2);
+		if(existingEdge!=null) {
+			existingEdge.weight = cost;
+			existingEdge = getExistingEdge(node2, node1);
+			existingEdge.weight = cost;
 		}else {
-			fromEdges.add(from);
-			toEdges.add(to);
-			return true;
+			nodes.get(node1).add(from);
+			nodes.get(node2).add(to);
 		}
+		
+		return true;
+		
 		
 		
 	}
@@ -90,27 +83,25 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	public boolean isConnected(T node1, T node2) {
 		if(!nodes.containsKey(node1) || !nodes.containsKey(node2))
 			return false;
-		
-		List<GraphEdge<T>> edges = nodes.get(node1);
-		for (GraphEdge<T> e : edges)
-			if(e.arrivalNode.equals(node2))
-				return true;
-		
+		GraphEdge<T> existingEdge = getExistingEdge(node1, node2);
+		if(existingEdge!=null) {
+			return true;
+		}
 		return false;
 	}
 
 
 	@Override
 	public int getCost(T node1, T node2) {
-		if(!this.isConnected(node1, node2)) {
+		if(!nodes.containsKey(node1) || !nodes.containsKey(node2))
 			return -1;
+		
+		GraphEdge<T> existingEdge = getExistingEdge(node1, node2);
+		if(existingEdge!=null) {
+			return existingEdge.weight;
 		}
-		List<GraphEdge<T>> fromEdges = nodes.get(node1);
-		for(GraphEdge<T> e : fromEdges) 
-			if(e.arrivalNode.equals(node2)) {
-				return e.weight;
-			}
 		return -1;
+
 	}
 
 	@Override
