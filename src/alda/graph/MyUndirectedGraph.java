@@ -6,7 +6,7 @@ import java.util.List;
 
 public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	
-	HashMap<T, LinkedList<GraphEdge<T>>> nodes = new HashMap<T, LinkedList<GraphEdge<T>>>();
+	HashMap<T, List<GraphEdge<T>>> nodes = new HashMap<T, List<GraphEdge<T>>>();
 	
 	class GraphEdge<T>{
 		int weight;
@@ -17,6 +17,13 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			}
 			this.weight = weight;
 			arrivalNode = node;
+		}
+		public boolean equals(GraphEdge<T> other) {
+			if(this.equals(other.arrivalNode)) {
+				return true;
+			}
+			return false;
+			
 		}
 	}
 
@@ -40,7 +47,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		if(nodes.containsKey(newNode))
 			return false;
 		else {
-			nodes.put(newNode, null);
+			nodes.put(newNode, new LinkedList<GraphEdge<T>>());
 			return true;
 		}
 			
@@ -54,6 +61,13 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		
 		GraphEdge<T> from = new GraphEdge<T>(cost, node2);
 		GraphEdge<T> to = new GraphEdge<T>(cost, node1);
+		
+		if(nodes.get(node1).indexOf(from)>0) {
+			
+		}
+		
+		
+		return false;
 		
 		
 	}
