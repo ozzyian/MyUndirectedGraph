@@ -98,7 +98,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		
 		
 	}
-	private void unVisist() {
+	private void unVisit() {
 		for(GraphNode<T> n : nodes.values()) {
 			if(n.isVisited()) {
 				n.visited=false;
@@ -134,15 +134,16 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public List<T> depthFirstSearch(T start, T end) {
-		unVisist();
+		unVisit();
 		LinkedList<T> traversed = new LinkedList<T>();
-		traversed.push(start);
+		traversed.add(start);
 		if(start.equals(end)) {
 			return traversed;
 		}
 		
 		while(!traversed.isEmpty()) {
-			GraphNode<T> current = nodes.get(traversed.peek());
+			GraphNode<T> current = nodes.get(traversed.peekLast());
+			System.out.println(current.value);
 			if(current.value.equals(end)) {
 				System.out.println(traversed);
 				return traversed;
@@ -150,15 +151,19 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 				current.visited = true;
 				for(GraphEdge<T> edge : current.adj) {
 					if(!nodes.get(edge.arrivalNode).isVisited()) {
-						traversed.push(edge.arrivalNode);
+						traversed.add(edge.arrivalNode);
+						nodes.get(edge.arrivalNode).visited = true;
 					}
+				}
+				if(traversed.peekLast().equals(current.value)) {
+					traversed.removeLast();
 				}
 			}
 			
 		}
 		
 		
-		System.out.println(traversed);
+		//System.out.println(traversed);
 		return traversed;
 	}
 
