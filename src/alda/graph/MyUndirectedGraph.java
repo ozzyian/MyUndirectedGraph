@@ -135,36 +135,42 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	@Override
 	public List<T> depthFirstSearch(T start, T end) {
 		unVisit();
+		
+		LinkedList<T> stack = new LinkedList<T>();
 		LinkedList<T> traversed = new LinkedList<T>();
-		traversed.add(start);
 		if(start.equals(end)) {
+			traversed.add(start);
 			return traversed;
 		}
 		
-		while(!traversed.isEmpty()) {
-			GraphNode<T> current = nodes.get(traversed.peekLast());
-			System.out.println(current.value);
-			if(current.value.equals(end)) {
-				System.out.println(traversed);
-				return traversed;
-			}else {
-				current.visited = true;
-				for(GraphEdge<T> edge : current.adj) {
-					if(!nodes.get(edge.arrivalNode).isVisited()) {
-						traversed.add(edge.arrivalNode);
-						nodes.get(edge.arrivalNode).visited = true;
-					}
+		stack.push(start);
+		nodes.get(start).visited = true;
+		
+		while(!stack.isEmpty()) {
+			GraphNode<T> current = nodes.get(stack.pop());
+			System.out.print(current.value);
+			traversed.add(current.value);
+			
+			for(GraphEdge<T> edge : current.adj) {
+				GraphNode<T> g = nodes.get(edge.arrivalNode);
+				
+				if( !g.isVisited()) {
+					g.visited = true;
+					stack.push(g.value);
 				}
-				if(traversed.peekLast().equals(current.value)) {
-					traversed.removeLast();
+				
+				if (g.value.equals(end)) {
+					traversed.add(g.value);
+					System.out.println(traversed);
+					return traversed;
 				}
 			}
-			
 		}
 		
 		
-		//System.out.println(traversed);
-		return traversed;
+		
+		System.out.println(stack);
+		return stack;
 	}
 
 	@Override

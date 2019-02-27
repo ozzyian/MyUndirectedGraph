@@ -113,6 +113,7 @@ public class UndirectedGraphTest {
 
 		String previous = start;
 		for (int i = 1; i < path.size(); i++) {
+			
 			assertTrue(graph.isConnected(previous, path.get(i)));
 			previous = path.get(i);
 		}
@@ -123,6 +124,7 @@ public class UndirectedGraphTest {
 
 	private void testDepthFirstSearch(String start, String end, int minimumPathLength) {
 		createExampleGraph();
+
 		List<String> path = graph.depthFirstSearch(start, end);
 		
 		assertTrue(path.size() >= minimumPathLength);
@@ -135,16 +137,16 @@ public class UndirectedGraphTest {
 	public void testDepthFirstSearchFromAToJ() {
 		testDepthFirstSearch("A", "J", 5);
 	}
-//
-//	@Test
-//	public void testDepthFirstSearchFromJToA() {
-//		testDepthFirstSearch("J", "A", 5);
-//	}
-//
-//	@Test
-//	public void testDepthFirstSearchFromFToE() {
-//		testDepthFirstSearch("F", "E", 3);
-//	}
+
+	@Test
+	public void testDepthFirstSearchFromJToA() {
+		testDepthFirstSearch("J", "A", 5);
+	}
+
+	@Test
+	public void testDepthFirstSearchFromFToE() {
+		testDepthFirstSearch("F", "E", 3);
+	}
 //
 	@Test
 	public void testDepthFirstSearchToSameNode() {
