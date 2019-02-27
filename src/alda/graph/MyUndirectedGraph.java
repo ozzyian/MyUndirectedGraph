@@ -32,6 +32,10 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		public void addEdge(GraphEdge<T> e) {
 			adj.add(e);
 		}
+		
+		public boolean isVisited() {
+			return visited;
+		}
 	}
 	class GraphEdge<T>{
 		int weight;
@@ -74,22 +78,19 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	public boolean connect(T node1, T node2, int cost) {
 		if(cost<=0 || !nodes.containsKey(node1) || !nodes.containsKey(node2))
 			return false;
+		GraphNode<T> n1 = nodes.get(node1);
+		GraphNode<T> n2 = nodes.get(node2);
 		
-		GraphEdge<T> from = new GraphEdge<T>(cost, node2);
-		GraphEdge<T> to = new GraphEdge<T>(cost, node1);
-		
-		
-		
-		GraphEdge<T> existingEdge2 = nodes.get(node1).getExistingEdge(node1, node2);
-		//GraphEdge<T> existingEdge = getExistingEdge(node1, node2);
-		if(existingEdge2!=null) {
-			existingEdge2.weight = cost;
-			existingEdge2 = nodes.get(node2).getExistingEdge(node2, node1);
-			//existingEdge = getExistingEdge(node2, node1);
-			existingEdge2.weight = cost;
+		GraphEdge<T> existingEdge = n1.getExistingEdge(node1, node2);
+		if(existingEdge!=null) {
+			existingEdge.weight = cost;
+			existingEdge = n2.getExistingEdge(node2, node1);
+			existingEdge.weight = cost;
 		}else {
-			nodes.get(node1).addEdge(from);
-			nodes.get(node2).addEdge(to);
+			GraphEdge<T> g1 = new GraphEdge<T>(cost, node2);
+			GraphEdge<T> g2 = new GraphEdge<T>(cost, node1);
+			n1.addEdge(g1);
+			n2.addEdge(g2);
 		}
 		
 		return true;
@@ -97,7 +98,13 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		
 		
 	}
-
+	private void unVisist() {
+		for(GraphNode<T> n : nodes.values()) {
+			if(n.isVisited()) {
+				n.visited=false;
+			}
+		}
+	}
 	@Override
 	public boolean isConnected(T node1, T node2) {
 		if(!nodes.containsKey(node1) || !nodes.containsKey(node2))
@@ -127,9 +134,32 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public List<T> depthFirstSearch(T start, T end) {
-		LinkedList<T> nodesToTravserse = new LinkedList<T>();
+		unVisist();
+		LinkedList<T> traversed = new LinkedList<T>();
+		traversed.push(start);
+		if(start.equals(end)) {
+			return traversed;
+		}
 		
-	return null;
+		while(!traversed.isEmpty()) {
+			GraphNode<T> current = nodes.get(traversed.peek());
+			if(current.value.equals(end)) {
+				System.out.println(traversed);
+				return traversed;
+			}else {
+				current.visited = true;
+				for(GraphEdge<T> edge : current.adj) {
+					if(!nodes.get(edge.arrivalNode).isVisited()) {
+						traversed.push(edge.arrivalNode);
+					}
+				}
+			}
+			
+		}
+		
+		
+		System.out.println(traversed);
+		return traversed;
 	}
 
 	@Override
