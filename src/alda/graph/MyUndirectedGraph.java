@@ -1,13 +1,20 @@
 package alda.graph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	
-	HashMap<T, GraphNode<T>> nodes = new HashMap<T, GraphNode<T>>();
+	private HashMap<T, GraphNode<T>> nodes = new HashMap<T, GraphNode<T>>();
+	private int totalEdges;
+	
+	public MyUndirectedGraph() {
+		totalEdges = 0;
+	}
 	
 	class GraphNode<T>{
 		boolean visited;
@@ -54,11 +61,12 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public int getNumberOfEdges() {
-		int totalEdges = 0;
-		for(GraphNode<T> node: nodes.values()) {
-			totalEdges+= node.numberOfEdges();
-		}
-		return totalEdges/2;
+//		int totalEdges = 0;
+//		for(GraphNode<T> node: nodes.values()) {
+//			totalEdges+= node.numberOfEdges();
+//		}
+//		return totalEdges/2;
+		return totalEdges;
 	}
 
 	@Override
@@ -92,7 +100,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			n1.addEdge(g1);
 			n2.addEdge(g2);
 		}
-		
+		totalEdges++;
 		return true;
 		
 		
@@ -130,17 +138,32 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	}
 	
-	
+	private List<T> getPath(T start, T end, HashMap<T, T> parents){
+		LinkedList<T> path = new LinkedList<>();
+		LinkedList<T> stack = new LinkedList<>();
+		stack.push(end);
+		T current = end;
+		while(current!=start) {
+			current = parents.get(current);
+			stack.push(current);
+		}
+		while (!stack.isEmpty()) {
+			current = stack.pop();
+			path.add(current);
+		}
+		System.out.println(path);
+		return path;
+	}
 
 	@Override
 	public List<T> depthFirstSearch(T start, T end) {
 		unVisit();
 		
+
 		LinkedList<T> stack = new LinkedList<T>();
-		LinkedList<T> traversed = new LinkedList<T>();
+		HashMap<T, T> parents = new HashMap<>();
 		if(start.equals(end)) {
-			traversed.add(start);
-			return traversed;
+			return new LinkedList<T>(Arrays.asList(start));
 		}
 		
 		stack.push(start);
@@ -148,25 +171,20 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		
 		while(!stack.isEmpty()) {
 			GraphNode<T> current = nodes.get(stack.pop());
-			System.out.print(current.value);
-			traversed.add(current.value);
-			
-			for(GraphEdge<T> edge : current.adj) {
-				GraphNode<T> g = nodes.get(edge.arrivalNode);
-				
-				if( !g.isVisited()) {
-					g.visited = true;
-					stack.push(g.value);
+			if (!current.value.equals(end)) {
+				for(GraphEdge<T> edge : current.adj) {
+					GraphNode<T> edgeNode = nodes.get(edge.arrivalNode);
+					if(!edgeNode.isVisited()){
+						edgeNode.visited=true;
+						stack.push(edgeNode.value);
+						parents.put(edgeNode.value, current.value);
+					}
+					
 				}
-				
-				if (g.value.equals(end)) {
-					traversed.add(g.value);
-					System.out.println(traversed);
-					return traversed;
-				}
+			}else {
+				return getPath(start, current.value, parents);
 			}
 		}
-		
 		
 		
 		System.out.println(stack);
@@ -175,8 +193,35 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public List<T> breadthFirstSearch(T start, T end) {
-		// TODO Auto-generated method stub
-		return null;
+		unVisit();
+		HashMap<T, T> parents = new HashMap<>();
+		LinkedList<T> queue = new LinkedList<T>();
+		
+		queue.add(start);
+		nodes.get(start).visited=true;
+		
+		while(!queue.isEmpty()) {
+			GraphNode<T> current = nodes.get(queue.poll());
+			if(!current.value.equals(end)) {
+				for(GraphEdge<T> edge : current.adj) {
+					GraphNode<T> edgeNode = nodes.get(edge.arrivalNode);
+					if(!edgeNode.isVisited()) {
+						edgeNode.visited = true;
+						queue.add(edgeNode.value);
+						parents.put(edgeNode.value, current.value);
+					}
+			
+				}
+			}else {
+				return getPath(start, current.value, parents);
+			}
+			
+			
+		}
+		
+			
+		System.out.println(queue);
+		return queue;
 	}
 
 	@Override

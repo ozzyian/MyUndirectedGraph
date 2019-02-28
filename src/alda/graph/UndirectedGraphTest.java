@@ -147,7 +147,7 @@ public class UndirectedGraphTest {
 	public void testDepthFirstSearchFromFToE() {
 		testDepthFirstSearch("F", "E", 3);
 	}
-//
+
 	@Test
 	public void testDepthFirstSearchToSameNode() {
 		for (String node : STANDARD_NODES) {
@@ -155,38 +155,38 @@ public class UndirectedGraphTest {
 			testDepthFirstSearch(node, node, 1);
 		}
 	}
-//
-//	private void testBreadthFirstSearch(String start, String end, int expectedathLength) {
-//		createExampleGraph();
-//		List<String> path = graph.breadthFirstSearch(start, end);
-//
-//		assertEquals(expectedathLength, path.size());
-//
-//		testPath(start, end, path);
-//	}
-//
-//	@Test
-//	public void testBreadthFirstSearchFromAToJ() {
-//		testBreadthFirstSearch("A", "J", 5);
-//	}
-//
-//	@Test
-//	public void testBreadthFirstSearchFromJToA() {
-//		testBreadthFirstSearch("J", "A", 5);
-//	}
-//
-//	@Test
-//	public void testBreadthFirstSearchFromFToE() {
-//		testBreadthFirstSearch("F", "E", 4);
-//	}
-//
-//	@Test
-//	public void testBreadthFirstSearchToSameNode() {
-//		for (String node : STANDARD_NODES) {
-//			graph = new MyUndirectedGraph<>();
-//			testBreadthFirstSearch(node, node, 1);
-//		}
-//	}
+
+	private void testBreadthFirstSearch(String start, String end, int expectedathLength) {
+		createExampleGraph();
+		List<String> path = graph.breadthFirstSearch(start, end);
+
+		assertEquals(expectedathLength, path.size());
+
+		testPath(start, end, path);
+	}
+
+	@Test
+	public void testBreadthFirstSearchFromAToJ() {
+		testBreadthFirstSearch("A", "J", 5);
+	}
+
+	@Test
+	public void testBreadthFirstSearchFromJToA() {
+		testBreadthFirstSearch("J", "A", 5);
+	}
+
+	@Test
+	public void testBreadthFirstSearchFromFToE() {
+		testBreadthFirstSearch("F", "E", 4);
+	}
+
+	@Test
+	public void testBreadthFirstSearchToSameNode() {
+		for (String node : STANDARD_NODES) {
+			graph = new MyUndirectedGraph<>();
+			testBreadthFirstSearch(node, node, 1);
+		}
+	}
 //
 //	@Test
 //	public void testMinimumSpanningTree() {
