@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 	
 	private HashMap<T, GraphNode<T>> nodes = new HashMap<T, GraphNode<T>>();
 	private int totalEdges;
+	private GraphNode<T> startNode;
 	
 	public MyUndirectedGraph() {
 		totalEdges = 0;
@@ -26,7 +28,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		}
 		public GraphEdge<T> getExistingEdge(T from, T to){
 			for(GraphEdge<T> e : adj) {
-				if(e.arrivalNode.equals(to)) {
+				if(e.endNode.equals(to)) {
 					return e;
 				}
 			}
@@ -44,13 +46,25 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			return visited;
 		}
 	}
-	class GraphEdge<T>{
+	class GraphEdge<T> implements Comparable<GraphEdge<T>>{
 		int weight;
-		T arrivalNode;
-		public GraphEdge(int weight, T node){
+		T startNode;
+		T endNode;
+		public GraphEdge(int weight, T startNode, T endNode){
 			this.weight = weight;
-			arrivalNode = node;
+			this.startNode = startNode;
+			this.endNode = endNode;
 		}
+
+		public int compareTo(GraphEdge<T> other) {
+			return weight - other.getWeight();
+		}
+		
+		public int getWeight() {
+			return weight;
+		}
+
+
 	}
 
 	@Override
@@ -61,11 +75,6 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public int getNumberOfEdges() {
-//		int totalEdges = 0;
-//		for(GraphNode<T> node: nodes.values()) {
-//			totalEdges+= node.numberOfEdges();
-//		}
-//		return totalEdges/2;
 		return totalEdges;
 	}
 
@@ -74,7 +83,11 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		if(nodes.containsKey(newNode))
 			return false;
 		else {
-			nodes.put(newNode, new GraphNode<T>(newNode));
+			GraphNode<T> node = new GraphNode<T>(newNode);
+			if(startNode == null)
+				startNode = node;
+			nodes.put(newNode, node);
+			
 			return true;
 		}
 			
@@ -84,6 +97,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 
 	@Override
 	public boolean connect(T node1, T node2, int cost) {
+		
 		if(cost<=0 || !nodes.containsKey(node1) || !nodes.containsKey(node2))
 			return false;
 		GraphNode<T> n1 = nodes.get(node1);
@@ -94,11 +108,13 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			existingEdge.weight = cost;
 			existingEdge = n2.getExistingEdge(node2, node1);
 			existingEdge.weight = cost;
+			
 		}else {
-			GraphEdge<T> g1 = new GraphEdge<T>(cost, node2);
-			GraphEdge<T> g2 = new GraphEdge<T>(cost, node1);
+			GraphEdge<T> g1 = new GraphEdge<T>(cost, node1,node2);
+			GraphEdge<T> g2 = new GraphEdge<T>(cost, node2, node1);
 			n1.addEdge(g1);
 			n2.addEdge(g2);
+			
 		}
 		totalEdges++;
 		return true;
@@ -151,7 +167,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			current = stack.pop();
 			path.add(current);
 		}
-		System.out.println(path);
+		
 		return path;
 	}
 
@@ -173,7 +189,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			GraphNode<T> current = nodes.get(stack.pop());
 			if (!current.value.equals(end)) {
 				for(GraphEdge<T> edge : current.adj) {
-					GraphNode<T> edgeNode = nodes.get(edge.arrivalNode);
+					GraphNode<T> edgeNode = nodes.get(edge.endNode);
 					if(!edgeNode.isVisited()){
 						edgeNode.visited=true;
 						stack.push(edgeNode.value);
@@ -187,7 +203,6 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		}
 		
 		
-		System.out.println(stack);
 		return stack;
 	}
 
@@ -204,7 +219,7 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 			GraphNode<T> current = nodes.get(queue.poll());
 			if(!current.value.equals(end)) {
 				for(GraphEdge<T> edge : current.adj) {
-					GraphNode<T> edgeNode = nodes.get(edge.arrivalNode);
+					GraphNode<T> edgeNode = nodes.get(edge.endNode);
 					if(!edgeNode.isVisited()) {
 						edgeNode.visited = true;
 						queue.add(edgeNode.value);
@@ -220,14 +235,43 @@ public class MyUndirectedGraph<T> implements UndirectedGraph<T> {
 		}
 		
 			
-		System.out.println(queue);
 		return queue;
 	}
 
 	@Override
 	public UndirectedGraph<T> minimumSpanningTree() {
-		// TODO Auto-generated method stub
-		return null;
+		unVisit();
+		
+		UndirectedGraph<T> mst = new MyUndirectedGraph<>();
+		PriorityQueue<GraphEdge<T>> edges = new PriorityQueue<>();
+		
+		for(GraphEdge<T> e : startNode.adj) {
+			edges.add(e);
+			
+		}
+		
+		startNode.visited = true;
+		
+		while(!edges.isEmpty()) {
+			GraphEdge<T> e = edges.poll();
+			
+			if(!nodes.get(e.endNode).isVisited()) {
+				mst.add(e.startNode);
+				mst.add(e.endNode);
+				mst.connect(e.startNode, e.endNode, e.getWeight());
+				
+			} 
+			
+			GraphNode<T> n = nodes.get(e.endNode);
+			
+			for(GraphEdge<T> nextE : n.adj) {
+				if(!n.isVisited())
+					edges.add(nextE);
+			}
+			n.visited = true;
+		
+		}
+		return mst;
 	}
 
 }
